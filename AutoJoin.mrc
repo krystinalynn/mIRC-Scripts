@@ -16,20 +16,17 @@ By QueenElsa                Version: 1.9
 on *:CONNECT:{ 
   if (!$window(@InviteMgmt)) { window -ike @InviteMgmt } 
 }
+
 on *:INVITE:*: { 
-  if (!$network = UnderNet) { halt } 
-  else { 
-    if ($address($nick,2) == *!*@undernet.org) { 
-      /join $chan
-      echo -ke @InviteMgmt 9,3Trusted A network service invited you to join $chan $+ . Invite auto-accepted. 
-      halt
-    }
-    else {
-      echo -ke @InviteMgmt 4,5Unknown $nick invited you to join $chan $+ . Invited rejected. 
-      halt
-    }
+  if ($network !== UnderNet) { return } 
+
+  if ($address($nick,2) == *!*@undernet.org) { 
+    /join $chan
+    echo -ke @InviteMgmt 9,3Trusted A network service invited you to join $chan $+ . Invite auto-accepted.
   }
+  else { echo -ke @InviteMgmt 4,5Unknown $nick invited you to join $chan $+ . Invited rejected. }
 }
+
 menu channel { 
   .X AutoInvite
   .. ON: { /msg X@channels.undernet.org modinfo $chan invite ON } 
