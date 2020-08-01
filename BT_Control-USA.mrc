@@ -104,13 +104,14 @@ dialog bt_control {
 }
 
 ;Initialize dialog
-on *:dialog:bt_control:init:*:{
+on *:dialog:bt_control:init:*: {
   ;Get all nicks in chan 
   /writeini bt.ini operation activechan $active
-  var %total = $nick($active,0) , %x = 1
-  while ( %x <= %total ) {
-    /did -i $dname 15 %x $nick($active,%x)
-  inc %x }
+  var %total = $nick($active,0)
+  if (%total) {
+    var %x = 1
+    while ( %x <= %total ) { /did -i $dname 15 %x $nick($active,%x) | inc %x }
+  }
   ;Get bot nick
   /did -o $dname 5 0 $readini(bt.ini, n, settings, botnick)
   ;Set identifiers
@@ -128,9 +129,8 @@ on *:dialog:bt_control:init:*:{
 alias  cui { 
   ;Dont remember target user
   if ($readini(bt.ini, n, settings, r-TU) == no) { 
-    /did -d $dname 15 0
     ;/echo -a BT_Control DEBUG: Target User - Cleared
-    halt
+    /did -d $dname 15 0
   } 
   ;Remember target user
   if ($readini(bt.ini, n, settings, r-TU) == yes) {
@@ -164,7 +164,7 @@ on *:DIALOG:bt_control:sclick:*:{
   ;Bug report
   ;TODO: Finish bugreporting system
   /*
-    if ($did == 9) { 
+  if ($did == 9) { 
     /var %bugreport $$?="What bug did you encounter?"
     /join #development 
     /timer 1 5 /msg #development Hi there, I'm $nick and I found a bug within the BT_Control script. Here is my bug report: %bugreport 
@@ -174,7 +174,7 @@ on *:DIALOG:bt_control:sclick:*:{
   ;Setup bot nick
   ;TODO: Change to add new botnick instead of using a particular nick.
   if ($did == 4) {
-    if ($did(5).text == $null) { /echo -a $asctime [BT Control\Setup] You must enter the nick used by your bot. This script will not function until you've entered your bot's nick. | halt }
+    if ($did(5).text == $null) { /echo -a $asctime [BT Control\Setup] You must enter the nick used by your bot. This script will not function until you've entered your bot's nick. }
     else {  
       /writeini bt.ini settings botnick $did(5).text
       /echo -a $asctime [BT Control] Set bot nick to: $did(5).text 
@@ -198,20 +198,20 @@ on *:DIALOG:bt_control:sclick:*:{
   */
   ;Ban
   if ($did == 19) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BAN] You must select a target user. } 
     else {
-      if ($did(1000).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 15m $did(58).text | /cui | halt } 
-      elseif ($did(1001).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 1h $did(58).text | /cui | halt } 
-      elseif ($did(1002).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 1d $did(58).text | /cui | halt } 
-      elseif ($did(1003).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 14d $did(58).text | /cui | halt } 
-      elseif ($did(1004).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 90d $did(58).text | /cui | halt } 
-      elseif ($did(1005).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 0 $did(58).text | /cui | halt } 
-      else {  /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext $did(58).text | /cui | halt }
+      if ($did(1000).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 15m $did(58).text | /cui } 
+      elseif ($did(1001).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 1h $did(58).text | /cui } 
+      elseif ($did(1002).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 1d $did(58).text | /cui } 
+      elseif ($did(1003).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 14d $did(58).text | /cui } 
+      elseif ($did(1004).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 90d $did(58).text | /cui } 
+      elseif ($did(1005).state == 1) { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext 0 $did(58).text | /cui } 
+      else { /msg $did(5).text b $readini(bt.ini, n, operation, activechan) $did(15).seltext $did(58).text | /cui }
     }
   }
   ;Blacklist
   if ($did == 20) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BLACKLIST USER] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BLACKLIST USER] You must select a target user. } 
     else {
       /msg $did(5).text black $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -219,20 +219,20 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Sticky
   if ($did == 21) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\STICKY BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\STICKY BAN] You must select a target user. } 
     else {
-      if ($did(1000).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 15m $did(58).text | /cui | halt } 
-      elseif ($did(1001).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 1h $did(58).text | /cui | halt } 
-      elseif ($did(1002).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 1d $did(58).text | /cui | halt } 
-      elseif ($did(1003).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 14d $did(58).text | /cui | halt } 
-      elseif ($did(1004).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 90d $did(58).text | /cui | halt } 
-      elseif ($did(1005).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 0 $did(58).text | /cui | halt } 
-      else {  /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext $did(58).text | /cui | halt }
+      if ($did(1000).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 15m $did(58).text | /cui } 
+      elseif ($did(1001).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 1h $did(58).text | /cui } 
+      elseif ($did(1002).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 1d $did(58).text | /cui } 
+      elseif ($did(1003).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 14d $did(58).text | /cui } 
+      elseif ($did(1004).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 90d $did(58).text | /cui } 
+      elseif ($did(1005).state == 1) { /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext 0 $did(58).text | /cui } 
+      else {  /msg $did(5).text stick $readini(bt.ini, n, operation, activechan) $did(15).seltext $did(58).text | /cui }
     }
   }
   ;Drone
   if ($did == 22) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\DRONE BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\DRONE BAN] You must select a target user. } 
     else {
       /msg $did(5).text dr $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -240,7 +240,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Bot
   if ($did == 23) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BOT BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BOT BAN] You must select a target user. } 
     else {
       /msg $did(5).text bot $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -248,7 +248,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Nick
   if ($did == 24) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\NICK BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\NICK BAN] You must select a target user. } 
     else {
       /msg $did(5).text n $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -256,7 +256,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Ident
   if ($did == 25) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\IDENT BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\IDENT BAN] You must select a target user. } 
     else {
       /msg $did(5).text id $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -264,7 +264,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Spam
   if ($did == 26) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\SPAM BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\SPAM BAN] You must select a target user. } 
     else {
       /msg $did(5).text spam $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -272,7 +272,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Bad Word
   if ($did == 27) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BAD WORD BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\BAD WORD BAN] You must select a target user. } 
     else {
       /msg $did(5).text bw $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -280,7 +280,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Virus
   if ($did == 28) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\VIRUS INFECTED USER BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\VIRUS INFECTED USER BAN] You must select a target user. } 
     else {
       /msg $did(5).text vr $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -288,7 +288,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Mibbit
   if ($did == 29) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\MIBBIT BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\MIBBIT BAN] You must select a target user. } 
     else {
       /msg $did(5).text mb $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -296,38 +296,36 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Gag
   if ($did == 30) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\GAG] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\GAG] You must select a target user. } 
     else {
-      if ($did(1000).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 15m $did(58).text | /cui | halt } 
-      elseif ($did(1001).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 1h $did(58).text | /cui | halt } 
-      elseif ($did(1002).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 1d $did(58).text | /cui | halt } 
-      elseif ($did(1003).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 14d $did(58).text | /cui | halt } 
-      elseif ($did(1004).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 90d $did(58).text | /cui | halt } 
-      elseif ($did(1005).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 0 $did(58).text | /cui | halt } 
-      else {  /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext $did(58).text | /cui | halt }
+      if ($did(1000).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 15m $did(58).text | /cui } 
+      elseif ($did(1001).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 1h $did(58).text | /cui } 
+      elseif ($did(1002).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 1d $did(58).text | /cui } 
+      elseif ($did(1003).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 14d $did(58).text | /cui } 
+      elseif ($did(1004).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 90d $did(58).text | /cui } 
+      elseif ($did(1005).state == 1) { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext 0 $did(58).text | /cui } 
+      else { /msg $did(5).text gag $readini(bt.ini, n, operation, activechan) $did(15).seltext $did(58).text | /cui }
     }
   }
   ;Ungag 
   if ($did == 31) { 
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\UNGAG] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\UNGAG] You must select a target user. } 
     else { 
       /msg $did(5).text ungag $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui 
-      halt 
     }
   }
   ;Unban 
   if ($did == 32) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\UNBAN] You must enter the hostmask you wish to unban. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\UNBAN] You must enter the hostmask you wish to unban. } 
     else { 
       /msg $did(5).text ub $readini(bt.ini, n, operation, activechan) $did(58).text 
       /cui 
-      halt 
     }
   }
   ;Troll
   if ($did == 33) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\TROLL BAN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\TROLL BAN] You must select a target user. } 
     else {
       /msg $did(5).text troll $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -335,7 +333,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Search Bans
   if ($did == 34) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\SEARCH BAN] You must enter the hostmask you wish to search the database for. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\SEARCH BAN] You must enter the hostmask you wish to search the database for. } 
     else {
       /msg $did(5).text sb $readini(bt.ini, n, operation, activechan) $did(58).text 
       /cui
@@ -347,7 +345,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Kick
   if ($did == 36) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\KICK] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\KICK] You must select a target user. } 
     else {
       /msg $did(5).text k $readini(bt.ini, n, operation, activechan) $did(15).seltext $did(58).text 
       /cui
@@ -355,7 +353,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Warn
   if ($did == 37) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\WARN] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\WARN] You must select a target user. } 
     else {
       /msg $did(5).text w $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -366,7 +364,7 @@ on *:DIALOG:bt_control:sclick:*:{
   */
   ;Op/Deop Target User
   if ($did == 16) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\OP or DEOP] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\OP or DEOP] You must select a target user. } 
     else {
       /msg $did(5).text o $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -374,7 +372,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Voice/Devoice Target User
   if ($did == 40) {
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\VOICE or DEVOICE] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\VOICE or DEVOICE] You must select a target user. } 
     else {
       /msg $did(5).text v $readini(bt.ini, n, operation, activechan) $did(15).seltext 
       /cui
@@ -382,7 +380,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Halfop/Dehalfop Target User
   if ($did == 41) { 
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\HALFOP or DEHALFOP] You must select a target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\HALFOP or DEHALFOP] You must select a target user. } 
     else {  
       /msg $did(5).text ho $readini(bt.ini, n, operation, activechan) $did(15).seltext
       /cui
@@ -390,7 +388,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Bot Manual 
   if ($did == 42) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\MAN] You must enter a command. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\MAN] You must enter a command. } 
     else { 
       /msg $did(5).text man $did(58).text
       /cui
@@ -402,7 +400,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Mode 
   if ($did == 44) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\MODE] You must enter a mode. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\MODE] You must enter a mode. } 
     else {  
       /msg $did(5).text mode $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -410,7 +408,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Cycle 
   if ($did == 45) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\CYCLE] You must enter a part message. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\CYCLE] You must enter a part message. } 
     else {  
       /msg $did(5).text cycle $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -418,7 +416,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Say
   if ($did == 46) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\SAY] You must enter a message to say in the channel. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\SAY] You must enter a message to say in the channel. } 
     else {  
       /msg $did(5).text SAY $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -426,7 +424,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Act
   if ($did == 47) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\ACT] You must enter an action to perform in the channel. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\ACT] You must enter an action to perform in the channel. } 
     else {  
       /msg $did(5).text ACT $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -434,7 +432,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Broadcast
   if ($did == 48) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\BROADCAST] You must enter a message to broadcast to all channels. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\BROADCAST] You must enter a message to broadcast to all channels. } 
     else {  
       /msg $did(5).text broadcast $did(58).text
       /cui
@@ -442,7 +440,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Invite
   if ($did == 49) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\INVITE] You must enter the nick of a user to invite. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\INVITE] You must enter the nick of a user to invite. } 
     else {  
       /msg $did(5).text i $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -450,7 +448,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Activity
   if ($did == 50) { 
-    if ($did(15).text == $null) { /echo -a $asctime 4[BT Control\ACTIVITY] You must select a user to view the activity of. | halt } 
+    if ($did(15).text == $null) { /echo -a $asctime 4[BT Control\ACTIVITY] You must select a user to view the activity of. } 
     else {  
       /msg $did(5).text activ $readini(bt.ini, n, operation, activechan) $did(15).seltext
       /cui
@@ -458,7 +456,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Topic
   if ($did == 51) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\TOPIC] You must enter a new topic. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\TOPIC] You must enter a new topic. } 
     else {  
       /msg $did(5).text t $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -466,7 +464,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;My Settings Configuration
   if ($did == 52) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\MY SETTINGS] You must enter a setting to configure. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\MY SETTINGS] You must enter a setting to configure. } 
     else {  
       /msg $did(5).text myset $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -474,7 +472,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Help
   if ($did == 53) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\HELP] You must enter the comand group to get help with. | /msg $did(5).text h | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\HELP] You must enter the comand group to get help with. | /msg $did(5).text h } 
     else {  
       /msg $did(5).text h $did(58).text
     }
@@ -486,8 +484,8 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Privmsg
   if ($did == 55) { 
-    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\PRIVMSG] You must select a target user. | halt } 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\PRIVMSG] You must enter a message to send to the target user. | halt } 
+    if ($did(15).seltext == $null) { /echo -a $asctime 4[BT Control\PRIVMSG] You must select a target user. | return } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\PRIVMSG] You must enter a message to send to the target user. } 
     else {  
       /msg $did(5).text msg $did(15).seltext $did(58).text
       /cui
@@ -495,7 +493,7 @@ on *:DIALOG:bt_control:sclick:*:{
   }
   ;Opmsg
   if ($did == 48) { 
-    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\OP MESSAGE] You must enter a message to send to the channel ops. | halt } 
+    if ($did(58).text == $null) { /echo -a $asctime 4[BT Control\OP MESSAGE] You must enter a message to send to the channel ops. } 
     else {  
       /msg $did(5).text omsg $readini(bt.ini, n, operation, activechan) $did(58).text
       /cui
@@ -527,7 +525,7 @@ menu nicklist {
     .echo -at @USA-Ops Assited: $$1 with: Registering for a Forum Account - If they need help registering a forum account, have them contact one of the Senior Administrators.
   }
   ..Learn about TempOps: {
-    if (!$window(@USA-Ops)) { windowOoo -ke @USA-Ops }
+    if (!$window(@USA-Ops)) { window -ke @USA-Ops }
     .msg $$1 Temporary Operators, or TempOps are trusted users (usually users with autovoice) who are given ops for a short period of time while there are no regular operators around. We usually pick TempOps at night. 
     .echo -at @USA-Ops Assited: $$1 with: Learning about Temporary Operators - There's nothing further to explain about TempOps.
   }
