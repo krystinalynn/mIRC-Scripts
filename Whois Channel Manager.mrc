@@ -51,7 +51,7 @@ RAW 301:*: {
 RAW 311:*: { 
   if ($network == UnderNet) { 
     haltdef
-    .timerhostmask -om 1 150 echo -at * $2 is $2 $+ ! $+ $3 $+ @ $+ $4 $5 $6  }
+    .timerhostmask -om 1 150 echo -at * $2 is $2 $+ ! $+ $3 $+ @ $+ $4 $5 $6-  }
 }
 
 RAW 312:*: { 
